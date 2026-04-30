@@ -178,13 +178,19 @@ def stop():
 # ─── ENTRY POINT ─────────────────────────────────────────────────
 if __name__ == "__main__":
     print("\n" + "═" * 50)
-    print("  TRADING BOT — BYBIT TESTNET")
+    print("  TRADING BOT — BYBIT")
     print("═" * 50)
-    print("\n  Press ENTER to START the bot")
-    print("  Press CTRL+C anytime to STOP\n")
+    print("\n  Starting bot automatically (server mode)...\n")
 
     try:
-        input("  >>> Press ENTER to start trading...\n")
+        # Start Flask server in background thread
+        start_server_thread()
+        
+        # Start trading bot
         start()
     except KeyboardInterrupt:
         stop()
+    except Exception as e:
+        print(f"❌ Fatal error: {e}")
+        import traceback
+        traceback.print_exc()
