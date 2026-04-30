@@ -111,23 +111,38 @@ def send_telegram_keyboard(text: str, buttons: list, chat_id: str = None):
 
 @register_command("start")
 def cmd_start():
-    """Handle /start command."""
+    """Handle /start command - Shows menu and starts bot if not running."""
+    status = bot_status
+    
+    # Check if bot is already running
+    if not status.get("running", False):
+        # Start the bot
+        try:
+            import main
+            threading.Thread(target=main.start, daemon=True).start()
+            bot_msg = "✅ Bot started and scanning for signals!"
+        except Exception as e:
+            bot_msg = f"⚠️ Bot status: {str(e)}"
+    else:
+        bot_msg = "✅ Bot is already running!"
+    
     return (
-        "🚀 <b>TRADING BOT CONTROLLER</b>\n\n"
-        "Available commands:\n"
-        "• /balance - View account balance\n"
-        "• /accounts - Compare demo/real\n"
-        "• /status - Bot status\n"
-        "• /stats - Win/loss stats\n"
-        "• /strategies - Manage strategies\n"
-        "• /help - All commands\n"
-        "• /resume - Resume trading\n"
-        "• /pause - Pause trading\n\n"
-        "Click buttons below or type command:"
+        f"🚀 <b>TRADING BOT CONTROLLER</b>\n\n"
+        f"{bot_msg}\n\n"
+        f"<b>Available commands:</b>\n"
+        f"• /balance - View account balance\n"
+        f"• /accounts - Compare demo/real\n"
+        f"• /status - Bot status\n"
+        f"• /stats - Win/loss stats\n"
+        f"• /strategies - Manage strategies\n"
+        f"• /help - All commands\n"
+        f"• /resume - Resume trading\n"
+        f"• /pause - Pause trading\n\n"
+        f"Click buttons below or type command:"
     ), [
         [
-            {"text": "� Balance", "callback_data": "cmd_balance"},
-            {"text": "�📊 Status", "callback_data": "cmd_status"}
+            {"text": "💰 Balance", "callback_data": "cmd_balance"},
+            {"text": "📊 Status", "callback_data": "cmd_status"}
         ],
         [
             {"text": "📚 Strategies", "callback_data": "cmd_strategies"},

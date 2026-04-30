@@ -1,6 +1,7 @@
 # main.py — Trading Bot Controller
 # Runs Flask server (for Render/UptimeRobot) + trading loop together
 
+import os
 import time
 import threading
 from datetime import datetime
@@ -180,14 +181,27 @@ if __name__ == "__main__":
     print("\n" + "═" * 50)
     print("  TRADING BOT — BYBIT")
     print("═" * 50)
-    print("\n  Starting bot automatically (server mode)...\n")
-
+    
+    # Check if auto-start is enabled
+    AUTO_START = os.getenv("AUTO_START_TRADING", "false").lower() == "true"
+    
     try:
         # Start Flask server in background thread
         start_server_thread()
         
-        # Start trading bot
-        start()
+        if AUTO_START:
+            print("\n  ⚡ AUTO-START enabled - Starting trading bot...\n")
+            start()
+        else:
+            print("\n  ⏸️  AUTO-START disabled - Bot ready, waiting for /start command\n")
+            print("  💡 Use Telegram /start command to begin trading")
+            print("  💡 Or set AUTO_START_TRADING=true in .env to auto-start\n")
+            
+            # Keep server running
+            import time
+            while True:
+                time.sleep(60)
+                
     except KeyboardInterrupt:
         stop()
     except Exception as e:
