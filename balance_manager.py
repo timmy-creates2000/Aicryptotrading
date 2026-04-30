@@ -193,18 +193,39 @@ class BalanceFetcher:
         
         try:
             session = get_session()
+            
+            # Get wallet balance with proper error handling
             response = session.get_wallet_balance(
                 accountType="UNIFIED",
                 coin="USDT"
             )
             
+            # Check for API errors
+            ret_code = response.get("retCode", -1)
+            ret_msg = response.get("retMsg", "Unknown error")
+            
+            if ret_code != 0:
+                print(f"  [balance] API Error {ret_code}: {ret_msg}")
+                
+                # Try to return expired cache as fallback
+                cached_data = self.cache.get(mode)
+                if cached_data:
+                    print(f"  [balance] Returning expired cache data")
+                    return BalanceData(**cached_data)
+                
+                return None
+            
             balance_data = BalanceData.from_api_response(response, mode)
             self.cache.set(mode, balance_data.to_dict())
+            
+            print(f"  [balance] ✅ Fetched {mode} balance: ${balance_data.usdt_balance:.2f}")
             
             return balance_data
             
         except Exception as e:
             print(f"  [balance] Error fetching balance for {mode}: {e}")
+            import traceback
+            traceback.print_exc()
             
             # Try to return expired cache as fallback
             cached_data = self.cache.get(mode)

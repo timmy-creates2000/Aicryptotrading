@@ -15,10 +15,18 @@ load_dotenv()
 
 
 def get_session():
+    """Create Bybit API session with correct configuration."""
+    testnet = os.getenv("BYBIT_TESTNET", "False").lower() == "true"
+    api_key = os.getenv("BYBIT_API_KEY")
+    api_secret = os.getenv("BYBIT_API_SECRET")
+    
+    if not api_key or not api_secret:
+        raise ValueError("BYBIT_API_KEY and BYBIT_API_SECRET must be set in .env")
+    
     return HTTP(
-        testnet=os.getenv("BYBIT_TESTNET", "True") == "True",
-        api_key=os.getenv("BYBIT_API_KEY"),
-        api_secret=os.getenv("BYBIT_API_SECRET"),
+        testnet=testnet,
+        api_key=api_key,
+        api_secret=api_secret,
     )
 
 
