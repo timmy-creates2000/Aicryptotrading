@@ -1,0 +1,58 @@
+BASIC CRYPTO TRADING STRATEGY
+
+=== ENTRY RULES ===
+
+BUY Conditions (ALL must be true):
+1. RSI between 30-50 (not overbought)
+2. MACD histogram turning positive
+3. Price above EMA21 (uptrend)
+4. Volume above average (confirmation)
+5. No recent losing trades on this pair
+
+SELL Conditions (ALL must be true):
+1. RSI between 50-70 (not oversold)
+2. MACD histogram turning negative
+3. Price below EMA21 (downtrend)
+4. Volume above average (confirmation)
+5. No recent losing trades on this pair
+
+=== EXIT RULES ===
+
+Stop Loss: 2% below entry
+Take Profit: 4% above entry (2:1 reward/risk)
+Trailing Stop: Activate at +2%, trail by 1%
+
+=== RISK MANAGEMENT ===
+
+Max Position Size: $0.50 per trade
+Max Daily Loss: 10% of account
+Max Consecutive Losses: 3 (then pause)
+Leverage: 2x maximum
+
+=== MARKET CONDITIONS TO AVOID ===
+
+DO NOT TRADE when:
+- Major news events (Fed announcements, CPI data)
+- Extremely low volume (< 50% of average)
+- High volatility (ATR > 2x normal)
+- Weekend trading (Sat-Sun)
+- First/last hour of trading day
+
+=== TIMEFRAMES ===
+
+Primary: 15-minute charts
+Confirmation: Check 1-hour trend
+Avoid: Trades against 1-hour trend
+
+=== PAIRS TO FOCUS ===
+
+Preferred: BTC/USDT, ETH/USDT (high liquidity)
+Avoid: Low volume altcoins
+
+=== PSYCHOLOGY RULES ===
+
+- Never revenge trade after a loss
+- Stick to the plan
+- Take breaks after 3 consecutive losses
+- Review trades weekly
+- Adjust strategy based on performance data

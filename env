@@ -1,0 +1,11 @@
+# ─── BYBIT TESTNET API ───────────────────────────────────────────
+BYBIT_API_KEY=yJ4HyynXji1tKTw2tJ
+BYBIT_API_SECRET=kzgABYXmDzjA72rYAnUrjJkj8riCwXsa6lkn
+BYBIT_TESTNET=False
+
+# ─── GEMINI AI ───────────────────────────────────────────────────
+GEMINI_API_KEY=AIzaSyD5z8s7leEjE_iHJYUIQIR48I-Wi8XTB8c
+
+# ─── TELEGRAM ────────────────────────────────────────────────────
+TELEGRAM_BOT_TOKEN=8283157682:AAFKNCuGLWL07CacYR1OFZi1-2tWR2obC_Y
+TELEGRAM_CHAT_ID=8399519503
