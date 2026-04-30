@@ -1,10 +1,10 @@
 # technical_indicators.py — Calculate RSI, EMA, MACD, ATR, Volume for better signals
 
 import numpy as np
-from typing import list, dict
+from typing import List, Dict
 
 
-def calculate_sma(prices: list, period: int) -> list:
+def calculate_sma(prices: List[float], period: int) -> List[float]:
     """Calculate Simple Moving Average."""
     sma = []
     for i in range(len(prices)):
@@ -15,7 +15,7 @@ def calculate_sma(prices: list, period: int) -> list:
     return sma
 
 
-def calculate_ema(prices: list, period: int) -> list:
+def calculate_ema(prices: List[float], period: int) -> List[float]:
     """Calculate Exponential Moving Average."""
     ema = []
     multiplier = 2 / (period + 1)
@@ -31,7 +31,7 @@ def calculate_ema(prices: list, period: int) -> list:
     return ema
 
 
-def calculate_rsi(prices: list, period: int = 14) -> float:
+def calculate_rsi(prices: List[float], period: int = 14) -> float:
     """
     Calculate RSI (Relative Strength Index).
     Returns current RSI value (0-100).
@@ -65,7 +65,7 @@ def calculate_rsi(prices: list, period: int = 14) -> float:
     return round(rsi, 2)
 
 
-def calculate_macd(prices: list) -> dict:
+def calculate_macd(prices: List[float]) -> Dict[str, any]:
     """
     Calculate MACD (Moving Average Convergence Divergence).
     Returns: {
@@ -114,7 +114,7 @@ def calculate_macd(prices: list) -> dict:
     }
 
 
-def calculate_atr(high: list, low: list, close: list, period: int = 14) -> float:
+def calculate_atr(high: List[float], low: List[float], close: List[float], period: int = 14) -> float:
     """
     Calculate ATR (Average True Range).
     High, low, close should be lists of same length.
@@ -140,7 +140,7 @@ def calculate_atr(high: list, low: list, close: list, period: int = 14) -> float
     return round(atr, 2)
 
 
-def calculate_volume_trend(volumes: list, period: int = 20) -> dict:
+def calculate_volume_trend(volumes: List[float], period: int = 20) -> Dict[str, any]:
     """
     Analyze volume trends.
     Returns: {
@@ -177,7 +177,7 @@ def calculate_volume_trend(volumes: list, period: int = 20) -> dict:
     }
 
 
-def analyze_indicators(candles: list) -> dict:
+def analyze_indicators(candles: List[list]) -> Dict[str, any]:
     """
     Comprehensive technical analysis from candle data.
     
@@ -258,7 +258,7 @@ def analyze_indicators(candles: list) -> dict:
     }
 
 
-def format_indicators_for_ai(analysis: dict) -> str:
+def format_indicators_for_ai(analysis: Dict[str, any]) -> str:
     """Format indicators as readable text for AI analysis."""
     msg = "📊 TECHNICAL INDICATORS:\n"
     msg += f"Price: {analysis['current_price']}\n"
