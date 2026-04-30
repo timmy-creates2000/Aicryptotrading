@@ -2,7 +2,7 @@
 
 import os
 import json
-from typing import list
+from typing import List
 from pathlib import Path
 
 
