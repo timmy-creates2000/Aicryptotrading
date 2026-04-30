@@ -176,6 +176,32 @@ def stop():
     print("🛑 Stopping bot after current cycle...")
 
 
+# ─── WEBHOOK AUTO-SETUP ─────────────────────────────────────────
+def setup_telegram_webhook():
+    """Automatically setup Telegram webhook on startup."""
+    BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+    RENDER_URL = os.getenv("RENDER_EXTERNAL_URL")
+    
+    if not BOT_TOKEN or not RENDER_URL:
+        print("  [webhook] ⚠️  Skipping webhook setup (missing config)")
+        return
+    
+    try:
+        import requests
+        webhook_url = f"{RENDER_URL.rstrip('/')}/telegram/webhook"
+        api_url = f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook"
+        
+        print(f"  [webhook] 🔧 Setting up Telegram webhook...")
+        response = requests.post(api_url, json={"url": webhook_url}, timeout=10)
+        
+        if response.status_code == 200 and response.json().get("ok"):
+            print(f"  [webhook] ✅ Webhook configured: {webhook_url}")
+        else:
+            print(f"  [webhook] ⚠️  Webhook setup failed: {response.text}")
+    except Exception as e:
+        print(f"  [webhook] ⚠️  Could not setup webhook: {e}")
+
+
 # ─── ENTRY POINT ─────────────────────────────────────────────────
 if __name__ == "__main__":
     print("\n" + "═" * 50)
@@ -188,6 +214,9 @@ if __name__ == "__main__":
     try:
         # Start Flask server in background thread
         start_server_thread()
+        
+        # Auto-setup Telegram webhook
+        setup_telegram_webhook()
         
         if AUTO_START:
             print("\n  ⚡ AUTO-START enabled - Starting trading bot...\n")
