@@ -486,8 +486,9 @@ def cmd_upload_strategy():
 # ─── CALLBACK HANDLERS FOR CONFIG ────────────────────────────────
 
 def handle_switch_mode(mode: str, chat_id: str):
-    """Handle mode switch callback."""
+    """Handle mode switch callback - switches instantly without restart."""
     cfg = get_config()
+    old_mode = cfg.config.get("mode", "DEMO")
     cfg.set_mode(mode)
     
     # Clear balance cache when switching modes
@@ -499,12 +500,24 @@ def handle_switch_mode(mode: str, chat_id: str):
         except:
             pass
     
+    # Update environment variables for immediate effect
+    import os
+    if mode == "DEMO":
+        os.environ["BYBIT_API_KEY"] = cfg.config.get("demo_api_key", "")
+        os.environ["BYBIT_API_SECRET"] = cfg.config.get("demo_api_secret", "")
+        os.environ["BYBIT_TESTNET"] = "True"
+    else:
+        os.environ["BYBIT_API_KEY"] = cfg.config.get("real_api_key", "")
+        os.environ["BYBIT_API_SECRET"] = cfg.config.get("real_api_secret", "")
+        os.environ["BYBIT_TESTNET"] = "False"
+    
     msg = (
         f"✅ <b>MODE SWITCHED</b>\n\n"
-        f"New mode: <b>{mode}</b>\n"
-        f"API keys: Updated\n"
-        f"Status: Ready\n\n"
-        f"⚠️ <b>Note:</b> Restart bot for changes to take effect"
+        f"Previous: <b>{old_mode}</b>\n"
+        f"Current: <b>{mode}</b>\n"
+        f"API Endpoint: {'Testnet' if mode == 'DEMO' else 'Mainnet'}\n"
+        f"Status: ✅ Active immediately\n\n"
+        f"💡 Use /balance to check new account"
     )
     send_telegram_message(msg, chat_id)
 
