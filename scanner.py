@@ -19,21 +19,26 @@ def scan_all_pairs() -> dict | None:
     results = []
 
     for symbol in WATCHLIST:
-        analysis = analyze_multi_timeframe(symbol)
-        signal = analysis.get("signal", "WAIT")
-        confidence = analysis.get("confidence", 0)
-        alignment = analysis.get("alignment", 0)
+        try:
+            analysis = analyze_multi_timeframe(symbol)
+            signal = analysis.get("signal", "WAIT")
+            confidence = analysis.get("confidence", 0)
+            alignment = analysis.get("alignment", 0)
 
-        # Only consider signals with 2+ timeframe alignment
-        if signal != "WAIT" and alignment >= 2:
-            status = "✅"
-        else:
-            status = "⏳"
+            # Only consider signals with 2+ timeframe alignment
+            if signal != "WAIT" and alignment >= 2:
+                status = "✅"
+            else:
+                status = "⏳"
+            
+            print(f"  {status} {symbol}: {signal} | {alignment}/3 timeframes | Confidence: {confidence}%")
+
+            if signal in ["BUY", "SELL"] and alignment >= 2:
+                results.append(analysis)
         
-        print(f"  {status} {symbol}: {signal} | {alignment}/3 timeframes | Confidence: {confidence}%")
-
-        if signal in ["BUY", "SELL"] and alignment >= 2:
-            results.append(analysis)
+        except Exception as e:
+            print(f"  ❌ {symbol}: Error during analysis - {e}")
+            continue  # Don't let one symbol failure kill the entire scan
 
     print("─" * 50)
 

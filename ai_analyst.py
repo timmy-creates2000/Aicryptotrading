@@ -4,13 +4,21 @@ import google.generativeai as genai
 import os
 import json
 from dotenv import load_dotenv
-from history import get_trade_history, get_candles
+from history import get_trade_history, get_candles, get_candles_raw
 from technical_indicators import analyze_indicators, format_indicators_for_ai
 from strategy_rag import get_strategy_context
 
 load_dotenv()
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# Validate Gemini API key at startup
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY or len(GEMINI_API_KEY) < 20:
+    raise ValueError(
+        "GEMINI_API_KEY is missing or invalid in .env file. "
+        "Get your key from https://aistudio.google.com/app/apikey"
+    )
+
+genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 
@@ -28,18 +36,14 @@ def analyze_pair(symbol: str, interval: str = "15") -> dict:
     trade_history = get_trade_history(symbol)
     candle_data = get_candles(symbol, interval=interval)
     
-    # Parse candles for indicators
-    try:
-        candles = json.loads(candle_data) if isinstance(candle_data, str) else candle_data
-    except:
-        # If candles are formatted as text, still try to extract price data
-        candles = None
+    # Get raw candles for indicator calculation (not text)
+    candles_raw = get_candles_raw(symbol, interval=interval)
     
     # Calculate technical indicators
     indicators_text = ""
-    if candles:
+    if candles_raw and len(candles_raw) > 0:
         try:
-            indicators = analyze_indicators(candles)
+            indicators = analyze_indicators(candles_raw)
             indicators_text = format_indicators_for_ai(indicators)
         except Exception as e:
             print(f"  [AI] Could not calculate indicators: {e}")

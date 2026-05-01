@@ -71,6 +71,9 @@ def get_candles(symbol: str, interval: str = "15", limit: int = 50) -> str:
         if not candles:
             return f"No candle data found for {symbol}."
 
+        # Bybit returns newest first, reverse to get chronological order
+        candles = list(reversed(candles))
+
         lines = [f"Last {len(candles)} candles ({interval}min) for {symbol}:\n"]
         lines.append("Format: [Open, High, Low, Close, Volume]\n")
 
@@ -78,13 +81,41 @@ def get_candles(symbol: str, interval: str = "15", limit: int = 50) -> str:
             timestamp, open_, high, low, close, volume, _ = candle
             lines.append(f"O:{open_} H:{high} L:{low} C:{close} V:{volume}")
 
-        latest = candles[0]
+        latest = candles[-1]  # Now correctly the newest
         lines.append(f"\nLatest Close Price: {latest[4]}")
 
         return "\n".join(lines)
 
     except Exception as e:
         return f"Could not fetch candles for {symbol}: {str(e)}"
+
+
+def get_candles_raw(symbol: str, interval: str = "15", limit: int = 50) -> list:
+    """
+    Fetches recent candlestick data for a symbol.
+    Returns raw list of candles for indicator calculation.
+    Each candle: [timestamp, open, high, low, close, volume, turnover]
+    """
+    try:
+        session = get_session()
+        response = session.get_kline(
+            category="linear",
+            symbol=symbol,
+            interval=interval,
+            limit=limit
+        )
+
+        candles = response.get("result", {}).get("list", [])
+
+        if not candles:
+            return []
+
+        # Bybit returns newest first, reverse to get chronological order (oldest to newest)
+        return list(reversed(candles))
+
+    except Exception as e:
+        print(f"[history] Error fetching candles for {symbol}: {e}")
+        return []
 
 
 def get_current_price(symbol: str) -> float:

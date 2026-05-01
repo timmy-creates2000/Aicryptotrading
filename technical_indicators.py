@@ -33,28 +33,27 @@ def calculate_ema(prices: List[float], period: int) -> List[float]:
 
 def calculate_rsi(prices: List[float], period: int = 14) -> float:
     """
-    Calculate RSI (Relative Strength Index).
+    Calculate RSI (Relative Strength Index) using Wilder's smoothing.
     Returns current RSI value (0-100).
     """
-    if len(prices) < period:
+    if len(prices) < period + 1:
         return 50.0  # Neutral if not enough data
     
-    gains = []
-    losses = []
+    # Calculate price changes
+    deltas = [prices[i] - prices[i-1] for i in range(1, len(prices))]
     
-    # Calculate gains and losses
-    for i in range(1, len(prices)):
-        change = prices[i] - prices[i-1]
-        if change > 0:
-            gains.append(change)
-            losses.append(0)
-        else:
-            gains.append(0)
-            losses.append(abs(change))
+    # Separate gains and losses
+    gains = [d if d > 0 else 0 for d in deltas]
+    losses = [-d if d < 0 else 0 for d in deltas]
     
-    # Average gains and losses
-    avg_gain = sum(gains[-period:]) / period
-    avg_loss = sum(losses[-period:]) / period
+    # First average (simple moving average)
+    avg_gain = sum(gains[:period]) / period
+    avg_loss = sum(losses[:period]) / period
+    
+    # Wilder's smoothing for subsequent values
+    for i in range(period, len(gains)):
+        avg_gain = (avg_gain * (period - 1) + gains[i]) / period
+        avg_loss = (avg_loss * (period - 1) + losses[i]) / period
     
     if avg_loss == 0:
         return 100.0 if avg_gain > 0 else 50.0

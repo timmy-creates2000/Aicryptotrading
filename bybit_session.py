@@ -6,10 +6,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Global session cache
+_session = None
+
 
 def get_session() -> HTTP:
     """
     Get Bybit API session for REAL trading (Mainnet only).
+    Session is cached and reused across calls.
     
     Returns:
         HTTP: Configured Bybit API session
@@ -17,6 +21,12 @@ def get_session() -> HTTP:
     Raises:
         ValueError: If API keys are not configured
     """
+    global _session
+    
+    # Return cached session if exists
+    if _session is not None:
+        return _session
+    
     api_key = os.getenv("BYBIT_API_KEY")
     api_secret = os.getenv("BYBIT_API_SECRET")
     
@@ -35,9 +45,18 @@ def get_session() -> HTTP:
     print(f"  [session] Creating REAL trading session (Mainnet)")
     print(f"  [session] API Key: {api_key[:8]}...{api_key[-4:]}")
     
-    # Always use mainnet (real trading)
-    return HTTP(
+    # Always use mainnet (real trading) - cached for reuse
+    _session = HTTP(
         testnet=False,
         api_key=api_key,
         api_secret=api_secret,
     )
+    
+    return _session
+
+
+def clear_session_cache():
+    """Clear cached session (forces recreation on next get_session call)."""
+    global _session
+    _session = None
+    print("  [session] Session cache cleared")

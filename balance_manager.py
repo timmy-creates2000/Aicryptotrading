@@ -14,10 +14,11 @@ load_dotenv()
 try:
     from bybit_session import get_session
     from telegram_control_panel import get_config
-except ImportError:
-    print("  [balance] Warning: Could not import bybit_session or telegram_control_panel")
-    get_session = None
-    get_config = None
+except ImportError as e:
+    raise ImportError(
+        f"Failed to import required modules: {e}\n"
+        "Make sure bybit_session.py and telegram_control_panel.py exist."
+    )
 
 
 # ─── BALANCE CACHE ───────────────────────────────────────────────
@@ -176,9 +177,9 @@ class BalanceFetcher:
         """Get balance for specified mode (DEMO or REAL). Uses cache unless force_refresh=True."""
         if mode is None and get_config:
             config = get_config()
-            mode = config.config.get("mode", "DEMO")
+            mode = config.config.get("mode", "REAL")  # Default to REAL (no more demo)
         elif mode is None:
-            mode = "DEMO"
+            mode = "REAL"
         
         # Check cache first
         if not force_refresh:
@@ -188,11 +189,10 @@ class BalanceFetcher:
         
         # Fetch from API
         if not get_session:
-            print("  [balance] Error: get_session not available")
-            return None
+            raise RuntimeError("get_session not available - check bybit_session.py import")
         
         try:
-            session = get_session(mode)  # Pass mode to session
+            session = get_session()  # No mode parameter - always real
             
             # Get wallet balance with proper error handling
             response = session.get_wallet_balance(

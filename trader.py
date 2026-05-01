@@ -75,7 +75,7 @@ def place_trade(symbol: str, signal: str) -> dict | None:
             qty=str(qty),
             stopLoss=str(stop_loss),
             takeProfit=str(take_profit),
-            timeInForce="IOC",
+            positionIdx=0,  # One-way mode (not hedge mode)
         )
 
         order_id = response["result"].get("orderId", "unknown")
@@ -109,7 +109,7 @@ def close_trade(symbol: str, side: str, quantity: float) -> bool:
             orderType="Market",
             qty=str(quantity),
             reduceOnly=True,
-            timeInForce="IOC",
+            positionIdx=0,  # One-way mode
         )
 
         print(f"  [trader] ✅ Position closed for {symbol}")
@@ -153,7 +153,7 @@ def update_stop_loss(symbol: str, side: str, new_sl: float) -> bool:
             category="linear",
             symbol=symbol,
             stopLoss=str(round(new_sl, 2)),
-            positionIdx=0 if side == "Buy" else 1,
+            positionIdx=0,  # Always 0 for one-way mode
         )
         return True
     except Exception as e:
