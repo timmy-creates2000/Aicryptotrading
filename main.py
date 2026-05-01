@@ -36,7 +36,7 @@ def print_banner():
     
     print("""
 ╔══════════════════════════════════════════════════════════════╗
-║          🤖 TRADING BOT — BYBIT TESTNET (Enhanced)           ║
+║          🤖 TRADING BOT — BYBIT MAINNET (Real Trading)       ║
 ║                                                              ║
 ║   Pairs           : {} pairs in watchlist                 ║
 ║   Mode            : Multi-timeframe + Technical Indicators   ║

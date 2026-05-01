@@ -211,8 +211,7 @@ def cmd_help():
     msg = (
         "<b>📋 AVAILABLE COMMANDS</b>\n\n"
         "<b>💰 Balance & Accounts:</b>\n"
-        "/balance - View current balance\n"
-        "/accounts - Compare demo/real\n\n"
+        "/balance - View current balance\n\n"
         "<b>📚 Strategy Management:</b>\n"
         "/strategies - Manage strategies\n"
         "/reload_strategies - Reload all\n\n"
@@ -225,7 +224,6 @@ def cmd_help():
         "/stop - Stop the bot\n\n"
         "<b>⚙️ Configuration:</b>\n"
         "/config - Trading settings\n"
-        "/mode - Switch DEMO/REAL\n"
         "/logs - View telegram logs\n\n"
         "<b>💡 Tip:</b> Use buttons for quick access!"
     )
@@ -284,7 +282,6 @@ def cmd_config():
         f"<b>Max Losses:</b> {status['max_losses']} in a row\n"
         f"<b>Daily Loss Limit:</b> {status['max_daily_loss']}%\n\n"
         f"<b>Commands:</b>\n"
-        f"/mode - Switch DEMO/REAL\n"
         f"/amount - Set trade amount\n"
         f"/leverage - Set leverage\n"
         f"/keys - Manage API keys"
@@ -303,26 +300,13 @@ def cmd_config():
 
 @register_command("mode")
 def cmd_mode():
-    """Show mode switcher."""
-    cfg = get_config()
-    current_mode = cfg.config["mode"]
-    next_mode = "REAL" if current_mode == "DEMO" else "DEMO"
-    
-    msg = (
-        f"🔄 <b>SWITCH MODE</b>\n\n"
-        f"Current: <b>{current_mode}</b>\n"
-        f"Next: <b>{next_mode}</b>\n\n"
-        f"Choose action:"
-    )
-    
-    return msg, [
-        [
-            {"text": f"✅ Switch to {next_mode}", "callback_data": f"switch_mode_{next_mode}"}
-        ],
-        [
-            {"text": "❌ Cancel", "callback_data": "cmd_config"}
-        ]
-    ]
+    """Mode switching disabled - REAL trading only."""
+    return (
+        "⚠️ <b>MODE SWITCHING DISABLED</b>\n\n"
+        "This bot is configured for <b>REAL TRADING ONLY</b>.\n\n"
+        "Demo/testnet mode has been removed for safety.\n"
+        "All trades execute on Bybit Mainnet with real funds."
+    ), None
 
 
 @register_command("amount")
@@ -816,7 +800,12 @@ def cmd_balance():
 
 @register_command("accounts")
 def cmd_accounts():
-    """Compare demo and real account balances."""
+    """Accounts command disabled - REAL trading only."""
+    return (
+        "⚠️ <b>ACCOUNT COMPARISON DISABLED</b>\n\n"
+        "This bot uses <b>REAL TRADING ONLY</b>.\n\n"
+        "Use /balance to check your Bybit Mainnet balance."
+    ), None
     if not BALANCE_ENABLED:
         return "❌ Balance features not available", None
     
