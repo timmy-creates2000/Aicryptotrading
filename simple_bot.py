@@ -29,9 +29,9 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 # Trading settings
-WATCHLIST = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "XRPUSDT"]
-TRADE_AMOUNT_USDT = 20.0
-LEVERAGE = 5
+WATCHLIST = ["DOGEUSDT", "XRPUSDT", "ADAUSDT", "TRXUSDT", "SHIBUSDT"]  # Cheap coins for small balance
+TRADE_AMOUNT_USDT = 0.1  # Tiny trades - $0.10 per trade
+LEVERAGE = 10  # Higher leverage to meet minimums
 SCAN_INTERVAL = 60  # seconds
 MIN_CONFIDENCE = 75  # AI confidence threshold
 
@@ -175,8 +175,13 @@ def execute_trade(signal):
     side = signal["signal"]
     price = signal["price"]
     
-    # Calculate quantity
-    qty = round((TRADE_AMOUNT_USDT * LEVERAGE) / price, 3)
+    # Calculate quantity - round to appropriate decimals based on price
+    if price < 1:
+        qty = round((TRADE_AMOUNT_USDT * LEVERAGE) / price, 0)  # Whole numbers for cheap coins
+    elif price < 10:
+        qty = round((TRADE_AMOUNT_USDT * LEVERAGE) / price, 1)
+    else:
+        qty = round((TRADE_AMOUNT_USDT * LEVERAGE) / price, 3)
     
     print(f"\n📊 Executing {side} on {symbol}")
     print(f"   Price: ${price}")
@@ -223,8 +228,8 @@ def main():
     print(f"💰 Balance: ${balance:.2f} USDT\n")
     
     if balance < TRADE_AMOUNT_USDT:
-        print(f"⚠️  Warning: Balance too low for trading")
-        send_telegram(f"⚠️ Bot started but balance is only ${balance:.2f}")
+        print(f"⚠️  Warning: Balance ${balance:.2f} is low. Bot will trade with ${TRADE_AMOUNT_USDT} per trade.")
+        send_telegram(f"⚠️ Bot started with low balance: ${balance:.2f}\nTrade size: ${TRADE_AMOUNT_USDT} × {LEVERAGE}x = ${TRADE_AMOUNT_USDT * LEVERAGE}")
     
     send_telegram(f"🤖 Bot started!\nBalance: ${balance:.2f}\nWatching: {', '.join(WATCHLIST)}")
     
