@@ -10,13 +10,26 @@ Simple Crypto Trading Bot - Essentials Only
 import os
 import time
 import json
+import threading
 from datetime import datetime
 from dotenv import load_dotenv
 from pybit.unified_trading import HTTP
 import google.generativeai as genai
 import requests
+from flask import Flask
 
 load_dotenv()
+
+# Flask app for Render health check
+app = Flask(__name__)
+
+@app.route('/')
+def health():
+    return {"status": "running", "bot": "simple_crypto_bot"}, 200
+
+@app.route('/health')
+def health_check():
+    return {"status": "ok"}, 200
 
 # ═══════════════════════════════════════════════════════════════
 # CONFIGURATION
@@ -257,4 +270,14 @@ def main():
             time.sleep(60)
 
 if __name__ == "__main__":
+    # Start Flask server in background thread
+    port = int(os.getenv("PORT", 10000))
+    flask_thread = threading.Thread(
+        target=lambda: app.run(host="0.0.0.0", port=port, debug=False),
+        daemon=True
+    )
+    flask_thread.start()
+    print(f"✅ Health check server started on port {port}")
+    
+    # Start trading bot
     main()
