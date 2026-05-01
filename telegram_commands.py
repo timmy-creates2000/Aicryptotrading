@@ -112,32 +112,30 @@ def send_telegram_keyboard(text: str, buttons: list, chat_id: str = None):
 @register_command("start")
 def cmd_start():
     """Handle /start command - Shows menu and starts bot if not running."""
-    status = bot_status
+    import main
     
-    # Check if bot is already running
-    if not status.get("running", False):
-        # Start the bot
-        try:
-            import main
-            threading.Thread(target=main.start, daemon=True).start()
-            bot_msg = "✅ Bot started and scanning for signals!"
-        except Exception as e:
-            bot_msg = f"⚠️ Bot status: {str(e)}"
+    # Check if trading loop is already running
+    if main.is_running:
+        bot_msg = "✅ Bot is already running and scanning!"
     else:
-        bot_msg = "✅ Bot is already running!"
+        # Start the trading loop in a background thread
+        try:
+            threading.Thread(target=main.start, daemon=True).start()
+            bot_msg = "✅ Bot started! Scanning will begin in a moment..."
+        except Exception as e:
+            bot_msg = f"⚠️ Error starting bot: {str(e)}"
     
     return (
         f"🚀 <b>TRADING BOT CONTROLLER</b>\n\n"
         f"{bot_msg}\n\n"
         f"<b>Available commands:</b>\n"
         f"• /balance - View account balance\n"
-        f"• /accounts - Compare demo/real\n"
         f"• /status - Bot status\n"
         f"• /stats - Win/loss stats\n"
         f"• /strategies - Manage strategies\n"
         f"• /help - All commands\n"
-        f"• /resume - Resume trading\n"
-        f"• /pause - Pause trading\n\n"
+        f"• /pause - Pause trading\n"
+        f"• /resume - Resume trading\n\n"
         f"Click buttons below or type command:"
     ), [
         [
@@ -149,8 +147,8 @@ def cmd_start():
             {"text": "📈 Stats", "callback_data": "cmd_stats"}
         ],
         [
-            {"text": "▶️ Resume", "callback_data": "cmd_resume"},
-            {"text": "⏸️  Pause", "callback_data": "cmd_pause"}
+            {"text": "⏸️  Pause", "callback_data": "cmd_pause"},
+            {"text": "▶️ Resume", "callback_data": "cmd_resume"}
         ]
     ]
 
@@ -234,25 +232,26 @@ def cmd_help():
     return msg, None
 
 
+@register_command("pause")
+def cmd_pause():
+    """Pause trading (keep open trades)."""
+    bot_status["paused"] = True
+    return (
+        "⏸️  <b>TRADING PAUSED</b>\n\n"
+        "No new trades will be opened.\n"
+        "Existing trades will continue with trailing stops.\n\n"
+        "Use /resume to continue trading."
+    ), None
+
+
 @register_command("resume")
 def cmd_resume():
     """Resume trading."""
-    bot_status["running"] = True
+    bot_status["paused"] = False
     return (
         "▶️ <b>TRADING RESUMED</b>\n\n"
         "Bot is now actively scanning for signals.\n"
         "New trades will be placed automatically."
-    ), None
-
-
-@register_command("pause")
-def cmd_pause():
-    """Pause trading (keep open trades)."""
-    bot_status["running"] = False
-    return (
-        "⏸️  <b>TRADING PAUSED</b>\n\n"
-        "No new trades will be opened.\n"
-        "Existing trades will continue with trailing stops."
     ), None
 
 
