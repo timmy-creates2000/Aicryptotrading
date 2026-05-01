@@ -734,9 +734,28 @@ def cmd_balance():
         balance_data = fetcher.get_balance(current_mode)
         
         if not balance_data:
-            return "❌ <b>Could not fetch balance</b>\n\nPlease check your API keys.", [
+            # Provide helpful error message with solutions
+            msg = (
+                "❌ <b>Could not fetch balance</b>\n\n"
+                "<b>Possible causes:</b>\n"
+                "1. API key permissions (need Read + Wallet)\n"
+                "2. No Unified Trading Account\n"
+                "3. Bybit API blocked in your region\n"
+                "4. IP whitelist restriction\n\n"
+                "<b>Quick fixes:</b>\n"
+                "• Check API permissions on Bybit\n"
+                "• Enable Unified Trading Account\n"
+                "• Check Bybit website directly\n"
+                "• Contact Bybit support\n\n"
+                "<b>Alternative:</b>\n"
+                "Check your balance directly at:\n"
+                "https://www.bybit.com/app/assets/overview"
+            )
+            
+            return msg, [
                 [{"text": "🔄 Retry", "callback_data": "balance_refresh"}],
-                [{"text": "⚙️ Settings", "callback_data": "cmd_config"}]
+                [{"text": "⚙️ Settings", "callback_data": "cmd_config"}],
+                [{"text": "📱 Open Bybit", "url": "https://www.bybit.com/app/assets/overview"}]
             ]
         
         msg = BalanceFormatter.format_display(balance_data)
@@ -749,7 +768,50 @@ def cmd_balance():
         return msg, buttons
         
     except Exception as e:
-        return f"❌ Error: {str(e)}", None
+        error_msg = str(e)
+        
+        # Check for common API errors
+        if "10003" in error_msg or "Invalid API key" in error_msg:
+            msg = (
+                "❌ <b>Invalid API Key</b>\n\n"
+                "Your API key is not valid.\n\n"
+                "<b>Solution:</b>\n"
+                "1. Go to Bybit → API Management\n"
+                "2. Create new API key\n"
+                "3. Enable Read + Wallet permissions\n"
+                "4. Update bot with new keys"
+            )
+        elif "10005" in error_msg or "Permission denied" in error_msg:
+            msg = (
+                "❌ <b>Permission Denied</b>\n\n"
+                "Your API key lacks permissions.\n\n"
+                "<b>Solution:</b>\n"
+                "1. Go to Bybit → API Management\n"
+                "2. Edit your API key\n"
+                "3. Enable these permissions:\n"
+                "   ✅ Read\n"
+                "   ✅ Wallet\n"
+                "4. Save and try again"
+            )
+        elif "Connection" in error_msg or "timeout" in error_msg:
+            msg = (
+                "❌ <b>Connection Error</b>\n\n"
+                "Cannot connect to Bybit API.\n\n"
+                "<b>Possible causes:</b>\n"
+                "• Bybit API is down\n"
+                "• Network issue\n"
+                "• API blocked in your region\n\n"
+                "<b>Check:</b>\n"
+                "• Bybit status: status.bybit.com\n"
+                "• Your balance: bybit.com/app/assets"
+            )
+        else:
+            msg = f"❌ <b>Error</b>\n\n{error_msg}\n\nTry again or check Bybit directly."
+        
+        return msg, [
+            [{"text": "🔄 Retry", "callback_data": "balance_refresh"}],
+            [{"text": "📱 Open Bybit", "url": "https://www.bybit.com/app/assets/overview"}]
+        ]
 
 
 @register_command("accounts")
