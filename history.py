@@ -1,26 +1,7 @@
 # history.py — Fetches past trade history from Bybit
 
-from pybit.unified_trading import HTTP
 from config import HISTORY_LIMIT
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-def get_session():
-    """Create Bybit API session with correct configuration."""
-    testnet = os.getenv("BYBIT_TESTNET", "False").lower() == "true"
-    api_key = os.getenv("BYBIT_API_KEY")
-    api_secret = os.getenv("BYBIT_API_SECRET")
-    
-    if not api_key or not api_secret:
-        raise ValueError("BYBIT_API_KEY and BYBIT_API_SECRET must be set in .env")
-    
-    return HTTP(
-        testnet=testnet,
-        api_key=api_key,
-        api_secret=api_secret,
-    )
+from bybit_session import get_session
 
 def get_trade_history(symbol: str) -> str:
     """

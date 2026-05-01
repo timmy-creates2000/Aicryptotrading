@@ -12,10 +12,10 @@ load_dotenv()
 
 # Import after load_dotenv
 try:
-    from trader import get_session
+    from bybit_session import get_session
     from telegram_control_panel import get_config
 except ImportError:
-    print("  [balance] Warning: Could not import trader or telegram_control_panel")
+    print("  [balance] Warning: Could not import bybit_session or telegram_control_panel")
     get_session = None
     get_config = None
 
@@ -192,7 +192,7 @@ class BalanceFetcher:
             return None
         
         try:
-            session = get_session()
+            session = get_session(mode)  # Pass mode to session
             
             # Get wallet balance with proper error handling
             response = session.get_wallet_balance(

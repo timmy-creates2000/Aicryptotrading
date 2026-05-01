@@ -56,18 +56,28 @@ class TradingConfig:
         self.config["mode"] = mode.upper()
         self.save_config()
         
-        # Update .env
+        # Clear session cache to force recreation with new mode
+        try:
+            from bybit_session import clear_session_cache
+            clear_session_cache()
+            print(f"  [config] Switched to {mode.upper()} mode")
+        except ImportError:
+            print("  [config] Warning: Could not clear session cache")
+        
+        # Update .env (legacy support)
         if mode.upper() == "DEMO":
             key = self.config.get("demo_api_key", "")
             secret = self.config.get("demo_api_secret", "")
+            testnet = "True"
         else:
             key = self.config.get("real_api_key", "")
             secret = self.config.get("real_api_secret", "")
+            testnet = "False"
         
         if key and secret:
             set_key(ENV_FILE, "BYBIT_API_KEY", key)
             set_key(ENV_FILE, "BYBIT_API_SECRET", secret)
-            set_key(ENV_FILE, "BYBIT_TESTNET", "False")
+            set_key(ENV_FILE, "BYBIT_TESTNET", testnet)
         
         return True
     
